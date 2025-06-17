@@ -2,8 +2,35 @@
 
 TamuPOS is a modern, full-stack Point of Sale (POS) application designed for restaurants, cafes, and other businesses, with a focus on the Kenyan market. It features a responsive, mobile-first interface and a robust backend to manage orders, payments, and menu items.
 
-![TamuPOS Architecture](httpstamu-pos-architecture.png)
-*(A diagram will be here once we generate it)*
+```mermaid
+graph TD
+    A[TamuPOS] --> B{Frontend};
+    A --> C{Backend};
+
+    B --> D[React];
+    B --> E[Vite];
+    B --> F[TypeScript];
+    B --> G[Tailwind CSS];
+    B --> H[POSInterface];
+
+    C --> I[Node.js];
+    C --> J[Express.js];
+    C --> K[Prisma];
+    C --> L[RESTful API];
+
+    L --> M["/api/categories"];
+    L --> N["/api/items"];
+    L --> O["/api/orders"];
+    L --> P["/api/payments"];
+
+    H -.-> L;
+
+    subgraph "Order Modes"
+        H --> Q[Tab Mode];
+        H --> R[Table Mode];
+        H --> S[Take-Away Mode];
+    end
+```
 
 ## Architecture Overview
 
