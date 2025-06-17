@@ -1,0 +1,28 @@
+# Frontend specific ignores
+
+# Node Modules
+node_modules/
+
+# Build output (Vite default)
+dist/
+
+# Environment variables (Vite convention)
+.env
+.env.*
+!.env.example
+
+# Vite cache
+.vite/
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# TypeScript build info
+*.tsbuildinfo
+
+# OS files (optional but good practice)
+.DS_Store

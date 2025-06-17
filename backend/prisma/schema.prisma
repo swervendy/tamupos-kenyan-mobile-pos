@@ -1,0 +1,159 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ===============================================
+// MULTITENANCY CORE
+// ===============================================
+model Restaurant {
+  id        String   @id @default(uuid())
+  name      String
+  address   String?
+  phone     String?
+  kraPin    String? @unique
+  mpesaPaybill String? @unique
+  mpesaConsumerKey     String?
+  mpesaConsumerSecret  String?
+  mpesaPasskey         String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  users  User[]
+  orders Order[]
+  menuItems FoodItem[]
+  categories Category[]
+}
+
+// ===============================================
+// USER & AUTH
+// ===============================================
+model User {
+  id          String    @id @default(uuid())
+  email       String    @unique
+  name        String
+  password    String    // This will store the hashed password
+  role        UserRole  @default(STAFF)
+  defaultMode OrderMode @default(TAB) // User's preferred default mode
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  restaurantId String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
+}
+
+enum UserRole {
+  ADMIN   // Super admin of the TamuPOS platform
+  OWNER   // Owner of a restaurant
+  MANAGER
+  STAFF
+}
+
+// ===============================================
+// MENU
+// ===============================================
+model Category {
+  id   String @id @default(uuid())
+  name String
+
+  // Relations
+  restaurantId String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
+  items        FoodItem[]
+
+  @@unique([restaurantId, name])
+}
+
+model FoodItem {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  price       Float
+  imageUrl    String?
+  available   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  categoryId   String
+  category     Category @relation(fields: [categoryId], references: [id])
+  restaurantId String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  orderItems   OrderItem[]
+
+  @@unique([restaurantId, name], name: "name_restaurantId")
+}
+
+// ===============================================
+// ORDERS
+// ===============================================
+model Order {
+  id                 String      @id @default(uuid())
+  orderNumber        String
+  mode               OrderMode
+  status             OrderStatus @default(OPEN)
+  customerName       String?
+  tableNumber        String?
+  
+  subtotalAmount     Float
+  vatAmount          Float
+  cateringLevyAmount Float       @default(0)
+  totalAmount        Float
+  paidAmount         Float?
+  paymentMethod      String?
+  transactionId      String? // For M-Pesa or other payment gateways
+
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  // Relations
+  restaurantId String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
+  items        OrderItem[]
+
+  @@index([restaurantId, createdAt])
+  @@unique([restaurantId, orderNumber])
+}
+
+model OrderItem {
+  id       String @id @default(uuid())
+  quantity Int
+  notes    String?
+  
+  // Snapshot of the price at the time of order to prevent changes if menu price is updated
+  priceAtOrder Float 
+
+  // Relations
+  orderId    String
+  order      Order    @relation(fields: [orderId], references: [id])
+  foodItemId String
+  foodItem   FoodItem @relation(fields: [foodItemId], references: [id])
+}
+
+enum OrderMode {
+  TAKE_AWAY
+  DELIVERY
+  TABLE
+  TAB
+}
+
+enum OrderStatus {
+  OPEN
+  PENDING_PAYMENT
+  PAID
+  COMPLETED
+  CANCELLED
+}

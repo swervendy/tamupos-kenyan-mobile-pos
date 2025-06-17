@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom global styles can go here */
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #f8fafc; /* Tailwind slate-50 */
+}
+
+* {
+  box-sizing: border-box;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+/* Ensure scrollbars are styled consistently and are not too obtrusive */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1; /* Tailwind slate-300 */
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8; /* Tailwind slate-400 */
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9; /* Tailwind slate-100 */
+}
+
+.menu-item-name {
+  @apply text-lg text-slate-700 mb-1 break-words;
+  font-weight: 600; /* Semibold for better readability */
+}
+
+.menu-item-price {
+  @apply font-semibold text-slate-500 text-sm;
+} 
